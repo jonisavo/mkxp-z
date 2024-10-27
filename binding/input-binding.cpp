@@ -537,6 +537,35 @@ RB_METHOD_GUARD(inputSetClipboard) {
 }
 RB_METHOD_GUARD_END
 
+RB_METHOD_GUARD(inputKeyName) {
+    RB_UNUSED_PARAM;
+    
+    rb_check_argc(argc, 1);
+    
+    VALUE button;
+    rb_scan_args(argc, argv, "1", &button);
+    
+    if (!SYMBOL_P(button) && !FIXNUM_P(button)) {
+        throw Exception(Exception::ArgumentError,
+                        "Key must be a scancode (symbol) or a button (integer)");
+    }
+    
+    SDL_Scancode scancode;
+    
+    if (SYMBOL_P(button)) {
+        scancode = static_cast<SDL_Scancode>(getScancodeArg(&button));
+    } else {
+        const auto button_code = static_cast<Input::ButtonCode>(getButtonArg(&button));
+        scancode = shState->input().buttonToScancode(button_code);
+    }
+    
+    const SDL_Keycode keycode = SDL_GetKeyFromScancode(scancode);
+    const char* name = shState->input().getKeyName(keycode);
+    
+    return rb_str_new_cstr(name);
+}
+RB_METHOD_GUARD_END
+
 struct {
     const char *str;
     Input::ButtonCode val;
@@ -620,6 +649,8 @@ void inputBindingInit() {
     
     _rb_define_module_function(module, "clipboard", inputGetClipboard);
     _rb_define_module_function(module, "clipboard=", inputSetClipboard);
+    
+    _rb_define_module_function(module, "key_name", inputKeyName);
     
     if (rgssVer >= 3) {
         VALUE symHash = rb_hash_new();

@@ -24,6 +24,7 @@
 
 #include <unordered_map>
 #include <SDL_gamecontroller.h>
+#include <SDL_keyboard.h>
 #include <string>
 #include <vector>
 
@@ -112,6 +113,12 @@ public:
     
     char *getClipboardText();
     void setClipboardText(char *text);
+    
+    /** Yields a key name. The allocation is handled by SDL; the string must be copied for own use. */
+    const char *getKeyName(SDL_Keycode code) const;
+    
+    /** Yields the scancode of the first found binding. */
+    SDL_Scancode buttonToScancode(ButtonCode button) const;
     
     const char *getAxisName(SDL_GameControllerAxis axis);
     const char *getButtonName(SDL_GameControllerButton button);

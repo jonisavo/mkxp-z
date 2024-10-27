@@ -1525,6 +1525,20 @@ void Input::setClipboardText(char *text)
         throw Exception(Exception::SDLError, "Failed to set clipboard text: %s", SDL_GetError());
 }
 
+const char *Input::getKeyName(SDL_Keycode keycode) const {
+    return SDL_GetKeyName(keycode);
+}
+
+SDL_Scancode Input::buttonToScancode(ButtonCode button) const {
+    for (const auto& binding : p->kbBindings) {
+        if (binding.target == button) {
+            return binding.source;
+        }
+    }
+    
+    return SDL_SCANCODE_UNKNOWN;
+}
+
 const char *Input::getAxisName(SDL_GameControllerAxis axis) {
     if (axis < 0 || axis >= SDL_CONTROLLER_AXIS_MAX)
         return "Invalid";
